@@ -32,8 +32,6 @@ import time
 import scipy.stats.mstats as stats
 import numpy as np
 from gmm import *
-import audioBasicIO
-import audioFeatureExtraction as aF
 from SAD import silenceRemoval
 from pyannote.core import Segment, Timeline, Annotation
 from pyannote.metrics.diarization import DiarizationErrorRate
@@ -388,13 +386,9 @@ def DER(outfile, AudioDataSet,annotationlist):
             reference[Segment(start, end)] = 'D'
     else:
         reference = Annotation()
-#        reference[Segment(0, 0.15)] = 'S'
         reference[Segment(0.15, 3.41)] = 'A'
-#        reference[Segment(3.42, 3.83)] = 'S'
         reference[Segment(3.83, 5.82)] = 'A'
-#        reference[Segment(5.83, 6.74)] = 'S'
         reference[Segment(6.75, 11.10)] = 'B'
-#        reference[Segment(11.11,11.31)] = 'S'
         reference[Segment(11.32, 15.8)] = 'C'
         reference[Segment(15.9, 18.8)] = 'B'
         reference[Segment(18.8, 27.8)] = 'C'
@@ -469,7 +463,6 @@ def sparseFeatures(frames, sparsity):
     return X
 
 if __name__ == '__main__':    
-#    X = np.ndfromtxt('/home/rehan/Diarization/ReDiarization/data/speech_data.csv', delimiter=',', dtype=np.float32)
     tic = time.time()
     stWin = 0.03
     stStep = 0.01
@@ -516,12 +509,7 @@ if __name__ == '__main__':
         if UseSAD: spnp = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1008a/IS1008a_spnp.txt' 
         meeting_name = 'IS1008a'
     
-    if not UsingLibrosa:
-        [Fs, x] = audioBasicIO.readAudioFile(fileName)
-        x = audioBasicIO.stereo2mono(x)
-        featTypes = [0, 0, 19, 0] #numOfTimeSpectralFeatures, numOfHarmonicFeatures, nceps, numOfChromaFeatures
-        fVects = aF.stFeatureExtraction(x, Fs, round(Fs * stWin), round(Fs*stStep), featTypes)
-    else:
+    if UsingLibrosa:
         x, Fs = librosa.load(fileName, sr=16000)
         S = librosa.feature.melspectrogram(y=x, sr=Fs, n_fft=int(Fs*stWin), hop_length=int(Fs*stStep))
         fVects = librosa.feature.mfcc(y=x, S=librosa.power_to_db(S), sr=Fs, n_mfcc=39)
@@ -535,8 +523,8 @@ if __name__ == '__main__':
                     frames = np.append(frames,frames[:,-1].reshape(-1,1),axis=1)
             feaSparse = sparseFeatures(frames, sparsity)
             feaSparse = np.sort(feaSparse, axis=0)
-#            fVects = np.append(fVects,feaSparse[-5:,:],axis=0)
-            fVects = feaSparse[-5:,:]
+            fVects = np.append(fVects,feaSparse[-5:,:],axis=0)
+#            fVects = feaSparse[-5:,:]
             #---------------------------------------------------------------------#
 
     # Create tester object
@@ -602,10 +590,3 @@ if __name__ == '__main__':
     metric, ref, hyp = DER(outfile, AudioDataSet,annotationlist)
     #diarizer.write_to_GMM(gmmfile)
     print('=== Total Time Taken: %.2f min' %((time.time()-tic)/60.0))
-
-"""
-Current Simulation chages:
-    Sparse only features
-    Use sparse features = False
-    39 features
-"""

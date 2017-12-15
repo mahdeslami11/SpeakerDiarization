@@ -2,7 +2,7 @@
 ## Requirements:
 I have used Anaconda distribution with python3. 
 ### Install other dependencies as follows:
-pip install pyannote.metrics simplejson eyed3 pydub librosa
+pip install pyannote.metrics librosa
 ## Main File:
 Use ReDiarization.py to run the speaker Diarization on audio files.
 See the "main" carefully to set the flags to run specific scenarios.

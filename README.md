@@ -1,6 +1,6 @@
 # SpeakerDiarization
 ## Requirements:
-I have used Anaconda distributino with python3. 
+I have used Anaconda distribution with python3. 
 ### Install other dependencies as follows:
 pip install pyannote.metrics simplejson eyed3 pydub librosa
 ## Main File:

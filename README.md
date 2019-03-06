@@ -11,7 +11,7 @@ Set your own paths in "main" for input audio and other output files.
 ## Data Set:
 Short audio file consisting of 40seconds recording with annotation is placed in "dataset" folder. To use large audio files, you can use the AMI corpus with annotation from http://groups.inf.ed.ac.uk/ami/download/.
 ## References:
-Main implementation of Speaker Diarization based upon GMM Heirarchical Agglomerative clustering is taken from [1], while "Speech Activity detection" is taken from [2]. Used pyannote.metrics to compute Diarization Error rate, Cluster purity etc from [3].
+Main implementation of Speaker Diarization is based on GMM Heirarchical Agglomerative clustering which is taken from [1], while "Speech Activity detection" is taken from [2]. Used pyannote.metrics to compute Diarization Error rate, Cluster purity etc. from [3].
 
 [1] E. Gonina, G. Friedland, H. Cook and K. Keutzer, "Fast speaker diarization using a high-level scripting language," 2011 IEEE Workshop on Automatic Speech Recognition & Understanding, Waikoloa, HI, 2011, pp. 553-558.
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+Parameters:
 1. lengthe of feature vectors
 2. types of features
 3. Gaussian mixtures
@@ -8,7 +9,7 @@
 5. Number of iterations of EM
 6. 
 
-Density estimation of GMM for accuracy of GMM for specific speaker. 
+TODO: Density estimation of GMM for accuracy of GMM for specific speaker. 
 
 Created on Sun Nov 19 12:29:28 2017
 
@@ -16,8 +17,6 @@ Created on Sun Nov 19 12:29:28 2017
 
     --- Optional: ---
     spnsp_file:         spnsp file (all features used by default)
-    KL_ntop:            Nuber of combinations to evaluate BIC on
-                        0 to deactive KL-divergency (fastmatch-component)
     em_iterations:      Number of iterations for the standard
                         segmentation loop training (3 by default)
     num_seg_iters_init: Number of majority vote iterations
@@ -36,13 +35,11 @@ from SAD import silenceRemoval
 from pyannote.core import Segment, Timeline, Annotation
 from pyannote.metrics.diarization import DiarizationErrorRate
 from pyannote.metrics.diarization import DiarizationPurity
+from pyannote.metrics.detection import DetectionErrorRate
 import librosa
 import xml.etree.ElementTree as ET
-import pdb
 from copy import copy
-import matplotlib.pylab as plt
-from omp import omp
-from sklearn import preprocessing
+from sklearn.preprocessing import StandardScaler
 
 class Diarizer(object):
 
@@ -323,6 +320,7 @@ class Diarizer(object):
                             best_merged_gmm = new_gmm
                             merged_tuple = (g1, g2)
                             merged_tuple_indices = (gmm1idx, gmm2idx)
+#                            print (best_BIC_score, score)
                             best_BIC_score = score
 
             # Merge the winning candidate pair if its deriable to do so
@@ -352,15 +350,14 @@ class Diarizer(object):
         if len(lkhoods.shape)==2:
             ml = lkhoods.argmax(axis=1)
         else:
-            ml = np.zeros(len(self.X))
-                
+            ml = np.zeros(len(self.X))                
         #######################################################################
         return most_likely,ml
 
-def DER(outfile, AudioDataSet,annotationlist):
+def DER(outfile, AudioDataSet,annotationlist, audioLength):
     reference = Annotation()
 
-    if AudioDataSet=='IS1000a' or AudioDataSet=='IS1008a':
+    if not AudioDataSet=='DiaExample':
         treeA = ET.parse(annotationlist[0])
         rootA = treeA.getroot()
         for child in rootA.findall('segment'):
@@ -405,80 +402,100 @@ def DER(outfile, AudioDataSet,annotationlist):
     f.close()
     metric = DiarizationErrorRate()
     metricPurity = DiarizationPurity()
-    print('DER: %.2f %%' %(metric(reference, hypothesis)*100))
-    print('Cluster Purity: %.2f %%' %(metricPurity(reference, hypothesis)*100))
+    uem = Timeline([Segment(0, audioLength)])
+
+    print('DER: %.2f %%' %(metric(reference, hypothesis, uem=uem)*100))
+    print('Cluster Purity: %.2f %%' %(metricPurity(reference, hypothesis, uem=uem)*100))
     
     return metric, reference, hypothesis
 
-def normalizeFeatures(features):
+def SADError(segments, AudioDataSet, annotationlist, audioLength):
+    reference = Annotation()
+    treeA = ET.parse(annotationlist[0])
+    rootA = treeA.getroot()
+    for child in rootA.findall('segment'):
+        start,end = float(child.get('transcriber_start')), float(child.get('transcriber_end'))
+        reference[Segment(start, end)] = 'A'
+
+    treeB = ET.parse(annotationlist[1])
+    rootB = treeB.getroot()
+    for child in rootB.findall('segment'):
+        start,end = float(child.get('transcriber_start')), float(child.get('transcriber_end'))
+        reference[Segment(start, end)] = 'A'
+
+    treeC = ET.parse(annotationlist[2])
+    rootC = treeC.getroot()
+    for child in rootC.findall('segment'):
+        start,end = float(child.get('transcriber_start')), float(child.get('transcriber_end'))
+        reference[Segment(start, end)] = 'A'
+
+    treeD = ET.parse(annotationlist[3])
+    rootD = treeD.getroot()
+    for child in rootD.findall('segment'):
+        start,end = float(child.get('transcriber_start')), float(child.get('transcriber_end'))
+        reference[Segment(start, end)] = 'A'
+
+    hypothesis = Annotation()
+    for seg in segments:
+        start = seg[0]
+        end = seg[1]
+        hypothesis[Segment(start, end)] = 'A'
+    
+    metric = DetectionErrorRate()
+    uem = Timeline([Segment(0, audioLength)])
+    print('SAD Error Rate: %.2f %%' %(metric(reference, hypothesis, uem=uem)*100))
+    
+    return metric, reference, hypothesis
+
+def SpeechOnlySamplesOptimal(X,Fs,AudioDataSet, annotationlist):
+    # This function makes non-speech (silence + noise) samples to zeros. 
+    XSpeech = np.zeros(X.shape)
+    treeA = ET.parse(annotationlist[0])
+    rootA = treeA.getroot()
+    for child in rootA.findall('segment'):
+        start,end = float(child.get('transcriber_start')), float(child.get('transcriber_end'))
+        XSpeech[int(np.round(start*Fs)):int(np.round(end*Fs))] = copy(X[int(np.round(start*Fs)):int(np.round(end*Fs))])
+
+    treeB = ET.parse(annotationlist[1])
+    rootB = treeB.getroot()
+    for child in rootB.findall('segment'):
+        start,end = float(child.get('transcriber_start')), float(child.get('transcriber_end'))
+        XSpeech[int(np.round(start*Fs)):int(np.round(end*Fs))] = copy(X[int(np.round(start*Fs)):int(np.round(end*Fs))])
+
+    treeC = ET.parse(annotationlist[2])
+    rootC = treeC.getroot()
+    for child in rootC.findall('segment'):
+        start,end = float(child.get('transcriber_start')), float(child.get('transcriber_end'))
+        XSpeech[int(np.round(start*Fs)):int(np.round(end*Fs))] = copy(X[int(np.round(start*Fs)):int(np.round(end*Fs))])
+
+    treeD = ET.parse(annotationlist[3])
+    rootD = treeD.getroot()
+    for child in rootD.findall('segment'):
+        start,end = float(child.get('transcriber_start')), float(child.get('transcriber_end'))
+        XSpeech[int(np.round(start*Fs)):int(np.round(end*Fs))] = copy(X[int(np.round(start*Fs)):int(np.round(end*Fs))])
+            
+    return XSpeech
+
+if __name__ == '__main__':
     '''
-    This function normalizes a feature set to 0-mean and 1-std.
-    Used in most classifier trainning cases.
-
-    ARGUMENTS:
-        - features:    list of feature matrices (each one of them is a numpy matrix)
-    RETURNS:
-        - featuresNorm:    list of NORMALIZED feature matrices
-        - MEAN:        mean vector
-        - STD:        std vector
+      For ExampleDiarization file use librosa, Weight=0.025.
+      And segment of 50, best DER achieved 9.9 %.
     '''
-    X = np.array([])
-
-    for count, f in enumerate(features):
-        if f.shape[0] > 0:
-            if count == 0:
-                X = f
-            else:
-                X = np.vstack((X, f))
-            count += 1
-
-    MEAN = np.mean(X, axis=0) + 0.00000000000001;
-    STD = np.std(X, axis=0) + 0.00000000000001;
-
-    featuresNorm = []
-    for f in features:
-        ft = f.copy()
-        for nSamples in range(f.shape[0]):
-            ft[nSamples, :] = (ft[nSamples, :] - MEAN) / STD
-        featuresNorm.append(ft)
-    return (featuresNorm, MEAN, STD)
-
-def sparseFeatures(frames, sparsity):
-    Y = frames
-    drows = Y.shape[0]
-    dcols = Y.shape[0]*2
-    ################# make initial dictionary #############################
-    N = dcols
-    DCTCoef = np.zeros((N,N))
-    for n in range(N):
-        for k in range(N):
-            if k==0:
-                DCTCoef[k,n] = np.cos(np.pi*k*(2*n+1)/(2*N))*np.sqrt(1.0/(4*N))
-            else:
-                DCTCoef[k,n] = np.cos(np.pi*k*(2*n+1)/(2*N))*np.sqrt(1.0/(2*N))
-#    D = DCTCoef[0:drows, 0:dcols]
-    D = DCTCoef[0:dcols, 0:drows].T
-    D = preprocessing.normalize(D,norm='l2',axis=0)            
-    X = omp(D,Y, sparsity)
-    return X
-
-if __name__ == '__main__':    
     tic = time.time()
     stWin = 0.03
     stStep = 0.01
     M = 5 # no of GMM components
     K = 16 # no of clusters or GMMs
-    '''
-      For ExampleDiarization file use librosa, Weight=0.025.
-      And segment of 50, best DER achieved 9.9 %.
-    '''
-    UsingLibrosa = True
-    AudioDataSet = 'IS1008a' #DiaExample, IS1000a, IS1008a
-    FlagFeatureNormalization = False
+    n_mfcc = 19
+
+    AudioDataSet = 'IS1008d' #DiaExample, IS1000a, IS1001a, IS1003a, IS1004a, IS1008a
+    FlagFeatureNormalization = True
     UseSAD = True
     UseSparseFeatures = False
-    spnp=None
-
+    spnp = None
+    SpeechOnlyOptimal = True
+    SparseFeatureEngineeringFlag = False
+    
     if AudioDataSet=='DiaExample':
         fileName = '/home/rehan/Diarization/ReDiarization/data/diarizationExample.wav'
         outfile = '/home/rehan/Diarization/ReDiarization/data/diarizationExample.rttm'
@@ -486,68 +503,34 @@ if __name__ == '__main__':
         if UseSAD: spnp = '/home/rehan/Diarization/ReDiarization/data/spnp.txt' 
         meeting_name = 'diarizationExample'
         annotationlist = None
-    elif AudioDataSet=='IS1000a':
-        fileName = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1000a/IS1000a.Mix-Headset.wav'
-        annotationA = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1000a/IS1000a.A.segments.xml'
-        annotationB = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1000a/IS1000a.B.segments.xml'
-        annotationC = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1000a/IS1000a.C.segments.xml'
-        annotationD = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1000a/IS1000a.D.segments.xml'
+    else:
+        fileName = '/home/rehan/Diarization/ReDiarization/data/AMI/'+AudioDataSet+'/audio/'+AudioDataSet+'.Mix-Headset.wav'
+        annotationA = '/home/rehan/Diarization/ReDiarization/data/AMI/'+AudioDataSet+'/audio/'+AudioDataSet+'.A.segments.xml'
+        annotationB = '/home/rehan/Diarization/ReDiarization/data/AMI/'+AudioDataSet+'/audio/'+AudioDataSet+'.B.segments.xml'
+        annotationC = '/home/rehan/Diarization/ReDiarization/data/AMI/'+AudioDataSet+'/audio/'+AudioDataSet+'.C.segments.xml'
+        annotationD = '/home/rehan/Diarization/ReDiarization/data/AMI/'+AudioDataSet+'/audio/'+AudioDataSet+'.D.segments.xml'
         annotationlist = [annotationA, annotationB, annotationC, annotationD]
-        outfile = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1000a/IS1000a.rttm'
-        gmmfile = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1000a/IS1000a.gmm'
-        if UseSAD: spnp = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1000a/IS1000a_spnp.txt' 
-        meeting_name = 'IS1000a'
-    elif AudioDataSet=='IS1008a':
-        fileName = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1008a/IS1008a.Mix-Headset.wav'
-        annotationA = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1008a/IS1008a.A.segments.xml'
-        annotationB = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1008a/IS1008a.B.segments.xml'
-        annotationC = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1008a/IS1008a.C.segments.xml'
-        annotationD = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1008a/IS1008a.D.segments.xml'
-        annotationlist = [annotationA, annotationB, annotationC, annotationD]
-        outfile = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1008a/IS1008a.rttm'
-        gmmfile = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1008a/IS1008a.gmm'
-        if UseSAD: spnp = '/home/rehan/Diarization/ReDiarization/data/AMI/IS1008a/IS1008a_spnp.txt' 
-        meeting_name = 'IS1008a'
-    
-    if UsingLibrosa:
-        x, Fs = librosa.load(fileName, sr=16000)
-        S = librosa.feature.melspectrogram(y=x, sr=Fs, n_fft=int(Fs*stWin), hop_length=int(Fs*stStep))
-        fVects = librosa.feature.mfcc(y=x, S=librosa.power_to_db(S), sr=Fs, n_mfcc=39)
-        if UseSparseFeatures:
-            #-------------------------Add Sparse Features-------------------------#
-            sparsity = 5
-            frames = librosa.util.frame(x, frame_length=int(Fs*stWin),hop_length=int(Fs*stStep))
-            if frames.shape[1] < fVects.shape[1]:
-                dif=fVects.shape[1]-frames.shape[1]
-                for i in range(dif):
-                    frames = np.append(frames,frames[:,-1].reshape(-1,1),axis=1)
-            feaSparse = sparseFeatures(frames, sparsity)
-            feaSparse = np.sort(feaSparse, axis=0)
-            fVects = np.append(fVects,feaSparse[-5:,:],axis=0)
-#            fVects = feaSparse[-5:,:]
-            #---------------------------------------------------------------------#
+        outfile = '/home/rehan/Diarization/ReDiarization/data/AMI/'+AudioDataSet+'/audio/'+AudioDataSet+'.rttm'
+        gmmfile = '/home/rehan/Diarization/ReDiarization/data/AMI/'+AudioDataSet+'/audio/'+AudioDataSet+'.gmm'
+        if UseSAD: spnp = '/home/rehan/Diarization/ReDiarization/data/AMI/'+AudioDataSet+'/audio/'+AudioDataSet+'_spnp.txt' 
+        meeting_name = AudioDataSet
 
-    # Create tester object
-    if FlagFeatureNormalization:
-        fVects = normalizeFeatures([fVects.T])[0][0].T
+    x, Fs = librosa.load(fileName, sr=16000)
+    audioLength = len(x)/(Fs)
+    if SpeechOnlyOptimal:
+        x = SpeechOnlySamplesOptimal(x,Fs,AudioDataSet, annotationlist)
+    
+    S = librosa.feature.melspectrogram(y=x, sr=Fs, n_fft=int(Fs*stWin), hop_length=int(Fs*stStep))
+    fVects = librosa.feature.mfcc(y=x, S=librosa.power_to_db(S), sr=Fs, n_mfcc = n_mfcc)
 
     if UseSAD:
         ###################### Speech Activity Detection ##########################
-        segments, idx = silenceRemoval(x, Fs, stWin, stStep, smoothWindow=0.5, Weight=0.025, plot=False)
+        segments, idx = silenceRemoval(x, Fs, stWin, stStep, smoothWindow=.0005, Weight=0.0001, plot=False)
+        me,re,hy = SADError(segments, AudioDataSet, annotationlist, audioLength)
         ###########################################################################
-
-#        nX = np.zeros(x.shape)
-#        for seg in segments:
-#            nX[int(seg[0]*Fs):int(seg[1]*Fs)] = copy(x[int(seg[0]*Fs):int(seg[1]*Fs)])
-#        plt.close('all')
-#        plt.subplot(211)
-#        plt.plot(x)
-#        plt.subplot(212)
-#        plt.plot(nX)
-#        librosa.output.write_wav('./out.wav',nX, 16000)
         
         # Creating a speech/non-speech text File which contains speech only
-        # features indices.
+        # features indices. 'idx' contains speech only features indices.
         st = idx[0]
         newst=copy(st)
         seglist = []
@@ -569,7 +552,13 @@ if __name__ == '__main__':
         #######################################################################
     else:
         fVectsSpeech = fVects
-        
+
+    if FlagFeatureNormalization:
+        ss = StandardScaler()
+        fVectsSpeech = ss.fit_transform(fVectsSpeech.T).T
+        print("Feature Normalization Done...")
+
+    ###########################################################################
     diarizer = Diarizer(fVectsSpeech,fVects.shape[1])
     # Create the GMM list
     num_comps = M
@@ -579,14 +568,15 @@ if __name__ == '__main__':
     # Cluster
     kl_ntop = 0
     num_em_iters = 100
-    num_seg_iters_init = 10 #2
-    num_seg_iters = 10 #3
-    seg_length = 150
+    num_seg_iters_init = 2 #2
+    num_seg_iters = 3 #3
+    seg_length = int(150)
     if AudioDataSet=='DiaExample': seg_length = 50
     
-    most_likely,ml = diarizer.cluster(num_em_iters, kl_ntop, num_seg_iters_init, num_seg_iters, seg_length)
+    most_likely,_ = diarizer.cluster(num_em_iters, kl_ntop, num_seg_iters_init, num_seg_iters, seg_length)
+        
     # Write out RTTM and GMM parameter files
     diarizer.write_to_RTTM(outfile, spnp, meeting_name, most_likely, num_gmms, seg_length)
-    metric, ref, hyp = DER(outfile, AudioDataSet,annotationlist)
+    metric, ref, hyp = DER(outfile, AudioDataSet,annotationlist, audioLength)
     #diarizer.write_to_GMM(gmmfile)
     print('=== Total Time Taken: %.2f min' %((time.time()-tic)/60.0))

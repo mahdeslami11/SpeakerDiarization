@@ -13,9 +13,9 @@ Short audio file consisting of 40seconds recording with annotation is placed in 
 ## References:
 Main implementation of Speaker Diarization is based on GMM Heirarchical Agglomerative clustering which is taken from [1], while "Speech Activity detection" is taken from [2]. Used pyannote.metrics to compute Diarization Error rate, Cluster purity etc. from [3].
 
-[1] E. Gonina, G. Friedland, H. Cook and K. Keutzer, "Fast speaker diarization using a high-level scripting language," 2011 IEEE Workshop on Automatic Speech Recognition & Understanding, Waikoloa, HI, 2011, pp. 553-558.
+__[1] E. Gonina, G. Friedland, H. Cook and K. Keutzer, "Fast speaker diarization using a high-level scripting language," 2011 IEEE Workshop on Automatic Speech Recognition & Understanding, Waikoloa, HI, 2011, pp. 553-558.__
 
-[2] @article{giannakopoulos2015pyaudioanalysis,
+__[2] @article{giannakopoulos2015pyaudioanalysis,
   title={pyAudioAnalysis: An Open-Source Python Library for Audio Signal Analysis},
   author={Giannakopoulos, Theodoros},
   journal={PloS one},
@@ -23,9 +23,9 @@ Main implementation of Speaker Diarization is based on GMM Heirarchical Agglomer
   number={12},
   year={2015},
   publisher={Public Library of Science}
-}
+}__
 
-[3] @inproceedings{pyannote.metrics,
+__[3] @inproceedings{pyannote.metrics,
   author = {Herv\'e Bredin},
   title = {{pyannote.metrics: a toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems}},
   booktitle = {{Interspeech 2017, 18th Annual Conference of the International Speech Communication Association}},
@@ -33,4 +33,4 @@ Main implementation of Speaker Diarization is based on GMM Heirarchical Agglomer
   month = {August},
   address = {Stockholm, Sweden},
   url = {http://pyannote.github.io/pyannote-metrics},
-}
+}__

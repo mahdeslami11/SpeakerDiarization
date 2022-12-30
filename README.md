@@ -34,3 +34,9 @@ __[3] @inproceedings{pyannote.metrics,
   address = {Stockholm, Sweden},
   url = {http://pyannote.github.io/pyannote-metrics},
 }__
+
+
+
+1. Target & codes function
+this project is about speaker diarization. it means we have meetings, conversations, and... then there are more than 2 people that they are talking. the detector recognize which voice from who is playing and emphsize them one by one without over lapping.
+after all we use video detector and voice detector at same time and we delete the muted voice to recognizing better.

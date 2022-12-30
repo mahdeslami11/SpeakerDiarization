@@ -1,414 +1,373 @@
-# SpeakerDiarization
-## Requirements:
-I have used Anaconda distribution with python3. 
-### Install other dependencies as follows:
-pip install pyannote.metrics librosa
-## Main File:
-Use ReDiarization.py to run the speaker Diarization on audio files.
-See the "main" carefully to set the flags to run specific scenarios.
-e.g. Either to use sparse feature extraction with MFCC etc.
-Set your own paths in "main" for input audio and other output files. 
-## Data Set:
-Short audio file consisting of 40seconds recording with annotation is placed in "dataset" folder. To use large audio files, you can use the AMI corpus with annotation from http://groups.inf.ed.ac.uk/ami/download/.
-## References:
-Main implementation of Speaker Diarization is based on GMM Heirarchical Agglomerative clustering which is taken from [1], while "Speech Activity detection" is taken from [2]. Used pyannote.metrics to compute Diarization Error rate, Cluster purity etc. from [3].
+<br/>
 
-__[1] E. Gonina, G. Friedland, H. Cook and K. Keutzer, "Fast speaker diarization using a high-level scripting language," 2011 IEEE Workshop on Automatic Speech Recognition & Understanding, Waikoloa, HI, 2011, pp. 553-558.__
+<p align="center">
+<img src="/logo.png" title="Logo" />
+</p>
 
-__[2] @article{giannakopoulos2015pyaudioanalysis,
-  title={pyAudioAnalysis: An Open-Source Python Library for Audio Signal Analysis},
-  author={Giannakopoulos, Theodoros},
-  journal={PloS one},
-  volume={10},
-  number={12},
-  year={2015},
-  publisher={Public Library of Science}
-}__
+<p align="center">
+<img alt="PyPI Version" src="https://img.shields.io/pypi/v/diart?color=g">
+<img alt="PyPI Downloads" src="https://static.pepy.tech/personalized-badge/diart?period=total&units=international_system&left_color=grey&right_color=brightgreen&left_text=downloads">
+<img alt="Top language" src="https://img.shields.io/github/languages/top/juanmc2005/StreamingSpeakerDiarization?color=g">
+<img alt="Code size in bytes" src="https://img.shields.io/github/languages/code-size/juanmc2005/StreamingSpeakerDiarization?color=g">
+<img alt="License" src="https://img.shields.io/github/license/juanmc2005/StreamingSpeakerDiarization?color=g">
+</p>
 
-__[3] @inproceedings{pyannote.metrics,
-  author = {Herv\'e Bredin},
-  title = {{pyannote.metrics: a toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems}},
-  booktitle = {{Interspeech 2017, 18th Annual Conference of the International Speech Communication Association}},
-  year = {2017},
-  month = {August},
-  address = {Stockholm, Sweden},
-  url = {http://pyannote.github.io/pyannote-metrics},
-}__
+<div align="center">
+  <h4>
+    <a href="#installation">
+      Installation
+    </a>
+    <span> | </span>
+    <a href="#stream-audio">
+      Stream audio
+    </a>
+    <span> | </span>
+    <a href="#custom-models">
+      Custom models
+    </a>
+    <span> | </span>
+    <a href="#tune-hyper-parameters">
+      Tune hyper-parameters
+    </a>
+    <span> | </span>
+    <a href="#build-pipelines">
+      Build pipelines
+    </a>
+    <br/>
+    <a href="#websockets">
+      WebSockets
+    </a>
+    <span> | </span>
+    <a href="#powered-by-research">
+      Research
+    </a>
+    <span> | </span>
+    <a href="#citation">
+      Citation
+    </a>
+    <span> | </span>
+    <a href="#reproducibility">
+      Reproducibility
+    </a>
+  </h4>
+</div>
 
+<br/>
 
+<p align="center">
+<img width="100%" src="/demo.gif" title="Real-time diarization example" />
+</p>
 
-1. Target & codes function
+## Installation
 
+1) Create environment:
 
-this project is about speaker diarization. it means we have meetings, conversations, and... then there are more than 2 people that they are talking. the detector recognize which voice from who is playing and emphsize them one by one without over lapping.
-after all we use video detector and voice detector at same time and we delete the muted voice to recognizing better. we use GMM cluster and SAD that you can find in files to run the ReDiarization.py.
+```shell
+conda create -n diart python=3.8
+conda activate diart
+```
 
-2.Describe innovation
+2) Install `PortAudio` and `soundfile`:
 
-Speakers diarization with detecting the latency and overlap of online speakers
-The project has been based on MIT databases for training network. 
-In order to compile the desired code, the following stages must be taken:
-1.install pycharm
-2.install pip python --upgrade
-the python version =3.9 (it is necessary)
-3. pip install pip --upgrade
-4. install anaconda (it takes time)
-after the anaconda is installed the environment in conda based on python 3.9 is made.
-5.the below libraries should be add in order to use them in code.
-diart, tourch, tourchaudio, pyannote.audio 
-6.conda create -n diart python=3.9
-7.conda activate diart
-8.conda create -n diart python=3.8
-9.conda activate diart
-10.pip install diart
-11.pyannote.audio should be installed
-12. the terms of MIT have to be consented by user by following the 
- https://huggingface.co/pyannote/segmentation
-13. order the token for login open the below link:
-14. pip install huggingface_hub
-15.conda install -c conda-forge huggingface_hub
-16. use the token code for logging to the MIT database
-17.the main.py must be run
-18. please enter the token number 
-19. after compile the main.py
-20. the script turn the laptop's speaker on and the voice of speaker are saved every 0.5 in buffers.
-21. by using pipeline all voices are recorded and according to the frequency the speaker voices is recognized.
-22. the network will be trained by 5 sec recording 
-23. the crucial parts of this project are latency and the over-lap of speakers' voices.
-   the problems are solved by separating the frequency according to the trained network and pytourch library.
+```shell
+conda install portaudio
+conda install pysoundfile -c conda-forge
+```
 
+3) Install diart:
+```shell
+pip install diart
+```
 
-3.Change in source codes
+### Get access to pyannote models
 
-In oreder to compile the desired code the following stages must be taken:
-1.install pycharm
-2.install pip python --upgrade
-the python version =3.8 ( it is necessary)
-3. pip instal pip --upgrade
-4. inistall anaconda ( it takes time)
-after the anaconda is inistalled the environment in conda based on python 3.8 is made.
-5.the below libraries should be add in order to use them in code.
-diart,tourch,tourchaudio,py
-6.conda create -n diart python=3.9
-7.conda activate diart
-8.conda create -n diart python=3.8
-9.conda activate diart
-10.pip install diart
-11.pyannote.audio should be installed
-12. the terms of MIT have to be consented by user by following the 
- https://huggingface.co/pyannote/segmentation
-13. order the token for login open the below link:
-14. pip install huggingface_hub
-15.conda install -c conda-forge huggingface_hub
-16. use the token code for logging to the MIT database
-17.the main.py must be run
-18. please enter the token number 
-19. after compile the main.py
-20. the script turn the laptop's speaker on and the voice of speaker are saved every 0.5 in buffers.
-21. by using pipeline all voices are recorded and according to the frequency the speaker voices is regognize.
-22. the network will be trained by 5 sec recording 
-23. the crucial part of this project is 
+By default, diart is based on [pyannote.audio](https://github.com/pyannote/pyannote-audio) models stored in the [huggingface](https://huggingface.co/) hub.
+To allow diart to use them, you need to follow these steps:
 
+1) [Accept user conditions](https://huggingface.co/pyannote/segmentation) for the `pyannote/segmentation` model
+2) [Accept user conditions](https://huggingface.co/pyannote/embedding) for the `pyannote/embedding` model
+3) Install [huggingface-cli](https://huggingface.co/docs/huggingface_hub/quick-start#install-the-hub-library) and [log in](https://huggingface.co/docs/huggingface_hub/quick-start#login) with your user access token (or provide it manually in diart CLI or API).
 
+## Stream audio
 
-4. Result
+### From the command line
 
-import asyncio
-import base64
-from pathlib import Path
-from queue import SimpleQueue
-from typing import Text, Optional, AnyStr
+A recorded conversation:
 
-import numpy as np
-import sounddevice as sd
+```shell
+diart.stream /path/to/audio.wav
+```
+
+A live conversation:
+
+```shell
+diart.stream microphone
+```
+
+See `diart.stream -h` for more options.
+
+### From python
+
+Use `RealTimeInference` to easily run a pipeline on an audio source and write the results to disk:
+
+```python
+from diart import OnlineSpeakerDiarization
+from diart.sources import MicrophoneAudioSource
+from diart.inference import RealTimeInference
+from diart.sinks import RTTMWriter
+
+pipeline = OnlineSpeakerDiarization()
+mic = MicrophoneAudioSource(pipeline.config.sample_rate)
+inference = RealTimeInference(pipeline, mic, do_plot=True)
+inference.attach_observers(RTTMWriter(mic.uri, "/output/file.rttm"))
+prediction = inference()
+```
+
+For inference and evaluation on a dataset we recommend to use `Benchmark` (see notes on [reproducibility](#reproducibility)).
+
+## Custom models
+
+Third-party models can be integrated seamlessly by subclassing `SegmentationModel` and `EmbeddingModel`:
+
+```python
 import torch
-import websockets
-from einops import rearrange
-from rx.subject import Subject
-from torchaudio.io import StreamReader
-import signal
+from typing import Optional
+from diart import OnlineSpeakerDiarization, PipelineConfig
+from diart.models import EmbeddingModel
+from diart.sources import MicrophoneAudioSource
+from diart.inference import RealTimeInference
 
-from .audio import FilePath, AudioLoader
-
-
-class AudioSource:
-    """Represents a source of audio that can start streaming via the `stream` property.
-
-    Parameters
-    ----------
-    uri: Text
-        Unique identifier of the audio source.
-    sample_rate: int
-        Sample rate of the audio source.
-    """
-    def __init__(self, uri: Text, sample_rate: int):
-        self.uri = uri
-        self.sample_rate = sample_rate
-        self.stream = Subject()
-
-    @property
-    def duration(self) -> Optional[float]:
-        """The duration of the stream if known. Defaults to None (unknown duration)."""
-        return None
-
-    def read(self):
-        """Start reading the source and yielding samples through the stream."""
-        raise NotImplementedError
-
-    def close(self):
-        """Stop reading the source and close all open streams."""
-        raise NotImplementedError
-
-
-class FileAudioSource(AudioSource):
-    """Represents an audio source tied to a file.
-
-    Parameters
-    ----------
-    file: FilePath
-        Path to the file to stream.
-    sample_rate: int
-        Sample rate of the chunks emitted.
-    """
-    def __init__(
+class MyEmbeddingModel(EmbeddingModel):
+    def __init__(self):
+        super().__init__()
+        self.my_pretrained_model = load("my_model.ckpt")
+    
+    def __call__(
         self,
-        file: FilePath,
-        sample_rate: int,
-        padding_end: float = 0,
-        block_size: int = 1000,
-    ):
-        super().__init__(Path(file).stem, sample_rate)
-        self.loader = AudioLoader(self.sample_rate, mono=True)
-        self._duration = self.loader.get_duration(file)
-        self.file = file
-        self.resolution = 1 / self.sample_rate
-        self.block_size = block_size
-        self.padding_end = padding_end
-        self.is_closed = False
+        waveform: torch.Tensor,
+        weights: Optional[torch.Tensor] = None
+    ) -> torch.Tensor:
+        return self.my_pretrained_model(waveform, weights)
 
-    @property
-    def duration(self) -> Optional[float]:
-        # The duration of a file is known
-        return self._duration + self.padding_end
+config = PipelineConfig(embedding=MyEmbeddingModel())
+pipeline = OnlineSpeakerDiarization(config)
+mic = MicrophoneAudioSource(config.sample_rate)
+inference = RealTimeInference(pipeline, mic)
+prediction = inference()
+```
 
-    def read(self):
-        """Send each chunk of samples through the stream"""
-        waveform = self.loader.load(self.file)
+## Tune hyper-parameters
 
-        # Add zero padding at the end if required
-        if self.padding_end > 0:
-            num_pad_samples = int(np.rint(self.padding_end * self.sample_rate))
-            zero_padding = torch.zeros(waveform.shape[0], num_pad_samples)
-            waveform = torch.cat([waveform, zero_padding], dim=1)
+Diart implements a hyper-parameter optimizer based on [optuna](https://optuna.readthedocs.io/en/stable/index.html) that allows you to tune any pipeline to any dataset.
 
-        # Split into blocks
-        _, num_samples = waveform.shape
-        chunks = rearrange(
-            waveform.unfold(1, self.block_size, self.block_size),
-            "channel chunk sample -> chunk channel sample",
-        ).numpy()
+### From the command line
 
-        # Add last incomplete chunk with padding
-        if num_samples % self.block_size != 0:
-            last_chunk = waveform[:, chunks.shape[0] * self.block_size:].unsqueeze(0).numpy()
-            diff_samples = self.block_size - last_chunk.shape[-1]
-            last_chunk = np.concatenate([last_chunk, np.zeros((1, 1, diff_samples))], axis=-1)
-            chunks = np.vstack([chunks, last_chunk])
+```shell
+diart.tune /wav/dir --reference /rttm/dir --output /output/dir
+```
 
-        # Stream blocks
-        for i, waveform in enumerate(chunks):
-            try:
-                if self.is_closed:
-                    break
-                self.stream.on_next(waveform)
-            except BaseException as e:
-                self.stream.on_error(e)
-                break
-        self.stream.on_completed()
-        self.close()
+See `diart.tune -h` for more options.
 
-    def close(self):
-        self.is_closed = True
+### From python
 
+```python
+from diart.optim import Optimizer
 
-class MicrophoneAudioSource(AudioSource):
-    """Represents an audio source tied to the default microphone available"""
+optimizer = Optimizer("/wav/dir", "/rttm/dir", "/output/dir")
+optimizer(num_iter=100)
+```
 
-    def __init__(self, sample_rate: int, block_size: int = 1000):
-        super().__init__("live_recording", sample_rate)
-        self.block_size = block_size
-        self._mic_stream = sd.InputStream(
-            channels=1,
-            samplerate=sample_rate,
-            latency=0,
-            blocksize=self.block_size,
-            callback=self._read_callback
-        )
-        self._queue = SimpleQueue()
+This will write results to an sqlite database in `/output/dir`.
 
-    def _read_callback(self, samples, *args):
-        self._queue.put_nowait(samples[:, [0]].T)
+### Distributed optimization
 
-    def read(self):
-        self._mic_stream.start()
-        while self._mic_stream:
-            try:
-                while self._queue.empty():
-                    if self._mic_stream.closed:
-                        break
-                self.stream.on_next(self._queue.get_nowait())
-            except BaseException as e:
-                self.stream.on_error(e)
-                break
-        self.stream.on_completed()
-        self.close()
+For bigger datasets, it is sometimes more convenient to run multiple optimization processes in parallel.
+To do this, create a study on a [recommended DBMS](https://optuna.readthedocs.io/en/stable/tutorial/10_key_features/004_distributed.html#sphx-glr-tutorial-10-key-features-004-distributed-py) (e.g. MySQL or PostgreSQL) making sure that the study and database names match:
 
-    def close(self):
-        self._mic_stream.stop()
-        self._mic_stream.close()
+```shell
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS example"
+optuna create-study --study-name "example" --storage "mysql://root@localhost/example"
+```
 
+You can now run multiple identical optimizers pointing to this database:
 
-class WebSocketAudioSource(AudioSource):
-    """Represents a source of audio coming from the network using the WebSocket protocol.
+```shell
+diart.tune /wav/dir --reference /rttm/dir --storage mysql://root@localhost/example
+```
 
-    Parameters
-    ----------
-    sample_rate: int
-        Sample rate of the chunks emitted.
-    host: Text | None
-        The host to run the websocket server. Defaults to ``None`` (all interfaces).
-    port: int
-        The port to run the websocket server. Defaults to 7007.
-    """
-    def __init__(self, sample_rate: int, host: Optional[Text] = None, port: int = 7007):
-        name = host if host is not None and host else "localhost"
-        uri = f"{name}:{port}"
-        # FIXME sample_rate is not being used, this can be confusing and lead to incompatibilities.
-        #  I would prefer the client to send a JSON with data and sample rate, then resample if needed
-        super().__init__(uri, sample_rate)
-        self.host = host
-        self.port = port
-        self.websocket = None
-        self.stop = None
+or in python:
 
-    async def _ws_handler(self, websocket):
-        self.websocket = websocket
-        try:
-            async for message in websocket:
-                # Decode chunk encoded in base64
-                byte_samples = base64.decodebytes(message.encode("utf-8"))
-                # Recover array from bytes
-                samples = np.frombuffer(byte_samples, dtype=np.float32)
-                # Reshape and send through
-                self.stream.on_next(samples.reshape(1, -1))
-            self.stream.on_completed()
-            self.close()
-        except websockets.ConnectionClosedError as e:
-            self.stream.on_error(e)
+```python
+from diart.optim import Optimizer
+from optuna.samplers import TPESampler
+import optuna
 
-    async def _async_read(self):
-        loop = asyncio.get_running_loop()
-        self.stop = loop.create_future()
-        loop.add_signal_handler(signal.SIGTERM, self.stop.set_result, None)
-        async with websockets.serve(self._ws_handler, self.host, self.port):
-            await self.stop
+db = "mysql://root@localhost/example"
+study = optuna.load_study("example", db, TPESampler())
+optimizer = Optimizer("/wav/dir", "/rttm/dir", study)
+optimizer(num_iter=100)
+```
 
-    async def _async_send(self, message: AnyStr):
-        await self.websocket.send(message)
+## Build pipelines
 
-    def read(self):
-        """Starts running the websocket server and listening for audio chunks"""
-        asyncio.run(self._async_read())
+For a more advanced usage, diart also provides building blocks that can be combined to create your own pipeline.
+Streaming is powered by [RxPY](https://github.com/ReactiveX/RxPY), but the `blocks` module is completely independent and can be used separately.
 
-    def close(self):
-        if self.websocket is not None:
-            # The value could be anything
-            self.stop.set_result(True)
+### Example
 
-    def send(self, message: AnyStr):
-        """Send a message through the current websocket.
+Obtain overlap-aware speaker embeddings from a microphone stream:
 
-        Parameters
-        ----------
-        message: AnyStr
-            Bytes or string to send.
-        """
-        # A running loop must exist in order to send back a message
-        ws_closed = "Websocket isn't open, try calling `read()` first"
-        try:
-            loop = asyncio.get_running_loop()
-        except RuntimeError:
-            raise RuntimeError(ws_closed)
+```python
+import rx.operators as ops
+import diart.operators as dops
+from diart.sources import MicrophoneAudioSource
+from diart.blocks import SpeakerSegmentation, OverlapAwareSpeakerEmbedding
 
-        if not loop.is_running():
-            raise RuntimeError(ws_closed)
+segmentation = SpeakerSegmentation.from_pyannote("pyannote/segmentation")
+embedding = OverlapAwareSpeakerEmbedding.from_pyannote("pyannote/embedding")
+sample_rate = segmentation.model.get_sample_rate()
+mic = MicrophoneAudioSource(sample_rate)
 
-        # TODO support broadcasting to many clients
-        # Schedule a coroutine to send back the message
-        if message:
-            asyncio.run_coroutine_threadsafe(self._async_send(message), loop=loop)
+stream = mic.stream.pipe(
+    # Reformat stream to 5s duration and 500ms shift
+    dops.rearrange_audio_stream(sample_rate=sample_rate),
+    ops.map(lambda wav: (wav, segmentation(wav))),
+    ops.starmap(embedding)
+).subscribe(on_next=lambda emb: print(emb.shape))
+
+mic.read()
+```
+
+Output:
+
+```
+# Shape is (batch_size, num_speakers, embedding_dim)
+torch.Size([1, 3, 512])
+torch.Size([1, 3, 512])
+torch.Size([1, 3, 512])
+...
+```
+
+## WebSockets
+
+Diart is also compatible with the WebSocket protocol to serve pipelines on the web.
+
+In the following example we build a minimal server that receives audio chunks and sends back predictions in RTTM format:
+
+```python
+from diart import OnlineSpeakerDiarization
+from diart.sources import WebSocketAudioSource
+from diart.inference import RealTimeInference
+
+pipeline = OnlineSpeakerDiarization()
+source = WebSocketAudioSource(pipeline.config.sample_rate, "localhost", 7007)
+inference = RealTimeInference(pipeline, source, do_plot=True)
+inference.attach_hooks(lambda ann_wav: source.send(ann_wav[0].to_rttm()))
+prediction = inference()
+```
+
+## Powered by research
+
+Diart is the official implementation of the paper *[Overlap-aware low-latency online speaker diarization based on end-to-end local segmentation](/paper.pdf)* by [Juan Manuel Coria](https://juanmc2005.github.io/), [Hervé Bredin](https://herve.niderb.fr), [Sahar Ghannay](https://saharghannay.github.io/) and [Sophie Rosset](https://perso.limsi.fr/rosset/).
 
 
-class TorchStreamAudioSource(AudioSource):
-    def __init__(
-        self,
-        uri: Text,
-        sample_rate: int,
-        streamer: StreamReader,
-        stream_index: Optional[int] = None,
-        block_size: int = 1000,
-    ):
-        super().__init__(uri, sample_rate)
-        self.block_size = block_size
-        self._streamer = streamer
-        self._streamer.add_basic_audio_stream(
-            frames_per_chunk=self.block_size,
-            stream_index=stream_index,
-            format="fltp",
-            sample_rate=self.sample_rate,
-        )
-        self.is_closed = False
+> We propose to address online speaker diarization as a combination of incremental clustering and local diarization applied to a rolling buffer updated every 500ms. Every single step of the proposed pipeline is designed to take full advantage of the strong ability of a recently proposed end-to-end overlap-aware segmentation to detect and separate overlapping speakers. In particular, we propose a modified version of the statistics pooling layer (initially introduced in the x-vector architecture) to give less weight to frames where the segmentation model predicts simultaneous speakers. Furthermore, we derive cannot-link constraints from the initial segmentation step to prevent two local speakers from being wrongfully merged during the incremental clustering step. Finally, we show how the latency of the proposed approach can be adjusted between 500ms and 5s to match the requirements of a particular use case, and we provide a systematic analysis of the influence of latency on the overall performance (on AMI, DIHARD and VoxConverse).
 
-    def read(self):
-        for item in self._streamer.stream():
-            try:
-                if self.is_closed:
-                    break
-                # shape (samples, channels) to (1, samples)
-                chunk = np.mean(item[0].numpy(), axis=1, keepdims=True).T
-                self.stream.on_next(chunk)
-            except BaseException as e:
-                self.stream.on_error(e)
-                break
-        self.stream.on_completed()
-        self.close()
+<p align="center">
+<img height="400" src="/figure1.png" title="Visual explanation of the system" width="325" />
+</p>
 
-    def close(self):
-        self.is_closed = True
-        
-        
-        
-5. Original Paper
+## Citation
 
-you can find the orginal file of paper in the files section. I uploaded there.
+If you found diart useful, please make sure to cite our paper:
 
-6. Interduce myself
+```bibtex
+@inproceedings{diart,  
+  author={Coria, Juan M. and Bredin, Hervé and Ghannay, Sahar and Rosset, Sophie},  
+  booktitle={2021 IEEE Automatic Speech Recognition and Understanding Workshop (ASRU)},   
+  title={Overlap-Aware Low-Latency Online Speaker Diarization Based on End-to-End Local Segmentation}, 
+  year={2021},
+  pages={1139-1146},
+  doi={10.1109/ASRU51503.2021.9688044},
+}
+```
 
-This is Narges Pourakhlaghi, Master student of Biomedical engineering, Bioelectric branch in Islamic Azad University South Tehran Branch
-this project belongs to DSP- Professor Dr. Mehdi Eslami
-first semester 1401
+##  Reproducibility
 
-7. Updated file
+![Results table](/table1.png)
 
-you can find them in the files.
+Diart aims to be lightweight and capable of real-time streaming in practical scenarios.
+Its performance is very close to what is reported in the paper (and sometimes even a bit better).
 
+To obtain the best results, make sure to use the following hyper-parameters:
 
-8. Explaining video
+| Dataset     | latency | tau    | rho    | delta |
+|-------------|---------|--------|--------|-------|
+| DIHARD III  | any     | 0.555  | 0.422  | 1.517 |
+| AMI         | any     | 0.507  | 0.006  | 1.057 |
+| VoxConverse | any     | 0.576  | 0.915  | 0.648 |
+| DIHARD II   | 1s      | 0.619  | 0.326  | 0.997 |
+| DIHARD II   | 5s      | 0.555  | 0.422  | 1.517 |
 
-https://drive.google.com/file/d/1WM5v1-DJ5ZNK8mc_X8YUzLWRRy-BhOkp/view?usp=share_link
+`diart.benchmark` and `diart.inference.Benchmark` can run, evaluate and measure the real-time latency of the pipeline. For instance, for a DIHARD III configuration:
 
+```shell
+diart.benchmark /wav/dir --reference /rttm/dir --tau=0.555 --rho=0.422 --delta=1.517 --segmentation pyannote/segmentation@Interspeech2021
+```
 
-9. Proposal
+or using the inference API:
 
-you can find it in the files.
-11.ز
+```python
+from diart.inference import Benchmark
+from diart import OnlineSpeakerDiarization, PipelineConfig
+from diart.models import SegmentationModel
+
+config = PipelineConfig(
+    # Set the model used in the paper
+    segmentation=SegmentationModel.from_pyannote("pyannote/segmentation@Interspeech2021"),
+    step=0.5,
+    latency=0.5,
+    tau_active=0.555,
+    rho_update=0.422,
+    delta_new=1.517
+)
+pipeline = OnlineSpeakerDiarization(config)
+benchmark = Benchmark("/wav/dir", "/rttm/dir")
+benchmark(pipeline)
+```
+
+This pre-calculates model outputs in batches, so it runs a lot faster.
+See `diart.benchmark -h` for more options.
+
+For convenience and to facilitate future comparisons, we also provide the [expected outputs](/expected_outputs) of the paper implementation in RTTM format for every entry of Table 1 and Figure 5. This includes the VBx offline topline as well as our proposed online approach with latencies 500ms, 1s, 2s, 3s, 4s, and 5s.
+
+![Figure 5](/figure5.png)
+
+##  License
+
+```
+MIT License
+
+Copyright (c) 2021 Université Paris-Saclay
+Copyright (c) 2021 CNRS
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+<p>Logo generated by <a href="https://www.designevo.com/" title="Free Online Logo Maker">DesignEvo free logo designer</a></p>

@@ -1,0 +1,28 @@
+In oreder to compile the desired code the following stages must be taken:
+1.install pycharm
+2.install pip python --upgrade
+the python version =3.8 ( it is necessary)
+3. pip instal pip --upgrade
+4. inistall anaconda ( it takes time)
+after the anaconda is inistalled the environment in conda based on python 3.8 is made.
+5.the below libraries should be add in order to use them in code.
+diart,tourch,tourchaudio,py
+6.conda create -n diart python=3.9
+7.conda activate diart
+8.conda create -n diart python=3.8
+9.conda activate diart
+10.pip install diart
+11.pyannote.audio should be installed
+12. the terms of MIT have to be consented by user by following the 
+ https://huggingface.co/pyannote/segmentation
+13. order the token for login open the below link:
+14. pip install huggingface_hub
+15.conda install -c conda-forge huggingface_hub
+16. use the token code for logging to the MIT database
+17.the main.py must be run
+18. please enter the token number 
+19. after compile the main.py
+20. the script turn the laptop's speaker on and the voice of speaker are saved every 0.5 in buffers.
+21. by using pipeline all voices are recorded and according to the frequency the speaker voices is regognize.
+22. the network will be trained by 5 sec recording 
+23. the crucial part of this project is 

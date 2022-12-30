@@ -381,4 +381,98 @@ SOFTWARE.
 
 
 1. Target & Code function
-this project is about recognizing the voice in a meeting, conversations, and.... whenever someone talking the detectors can find and detect which voice belongs to which person.
+this project is about recognizing the voice in a meeting, conversations, and.... whenever someone talks, the detectors can find and detect which voice belongs to which person. however it can find the muted part in conversation and omitted. finding the voice and recognizing can happened withoud overlapping. even more than 2 person talk in same time.
+we use GMM cluster and SAD to find the voice source. the input ofcourse is voice and the outputs are numbers and results in papers.
+
+
+2. describe innovation
+
+you can find the inovation files among the other files and I describe it even in my video.
+
+3. changes in codes
+
+Speakers diarization with detecting the latency and overlap of online speakers
+The project has been based on MIT databases for training network. 
+In order to compile the desired code, the following stages must be taken:
+1.install pycharm
+2.install pip python --upgrade
+the python version =3.9 (it is necessary)
+3. pip install pip --upgrade
+4. install anaconda (it takes time)
+after the anaconda is installed the environment in conda based on python 3.9 is made.
+5.the below libraries should be add in order to use them in code.
+diart, tourch, tourchaudio, pyannote.audio 
+6.conda create -n diart python=3.9
+7.conda activate diart
+8.conda create -n diart python=3.8
+9.conda activate diart
+10.pip install diart
+11.pyannote.audio should be installed
+12. the terms of MIT have to be consented by user by following the 
+ https://huggingface.co/pyannote/segmentation
+13. order the token for login open the below link:
+14. pip install huggingface_hub
+15.conda install -c conda-forge huggingface_hub
+16. use the token code for logging to the MIT database
+17.the main.py must be run
+18. please enter the token number 
+19. after compile the main.py
+20. the script turn the laptop's speaker on and the voice of speaker are saved every 0.5 in buffers.
+21. by using pipeline all voices are recorded and according to the frequency the speaker voices is recognized.
+22. the network will be trained by 5 sec recording 
+23. the crucial parts of this project are latency and the over-lap of speakers' voices.
+   the problems are solved by separating the frequency according to the trained network and pytourch library.
+
+
+4.results
+
+you can see the results in the files amoung the other files uploaded.
+also, the result contains:
+
+In oreder to compile the desired code the following stages must be taken:
+1.install pycharm
+2.install pip python --upgrade
+the python version =3.8 ( it is necessary)
+3. pip instal pip --upgrade
+4. inistall anaconda ( it takes time)
+after the anaconda is inistalled the environment in conda based on python 3.8 is made.
+5.the below libraries should be add in order to use them in code.
+diart,tourch,tourchaudio,py
+6.conda create -n diart python=3.9
+7.conda activate diart
+8.conda create -n diart python=3.8
+9.conda activate diart
+10.pip install diart
+11.pyannote.audio should be installed
+12. the terms of MIT have to be consented by user by following the 
+ https://huggingface.co/pyannote/segmentation
+13. order the token for login open the below link:
+14. pip install huggingface_hub
+15.conda install -c conda-forge huggingface_hub
+16. use the token code for logging to the MIT database
+17.the main.py must be run
+18. please enter the token number 
+19. after compile the main.py
+20. the script turn the laptop's speaker on and the voice of speaker are saved every 0.5 in buffers.
+21. by using pipeline all voices are recorded and according to the frequency the speaker voices is regognize.
+22. the network will be trained by 5 sec recording 
+23. the crucial part of this project is 
+
+
+5. Reference
+
+you can find the reference paper amoung the files uploaded.
+
+
+6. Interduce myself
+
+this is Narges Pourakhlaghi, Master student of Biomedical engineering- Bioelectric, in Islamic Azad University South Tehran Branch.
+this project done for DSP-Dr. Mahdi Eslami, first semester of 1401
+
+7.Paper file uploaded
+
+8.explaining video
+
+https://drive.google.com/file/d/1WM5v1-DJ5ZNK8mc_X8YUzLWRRy-BhOkp/view?usp=share_link
+
+9.Proposal file uploaded

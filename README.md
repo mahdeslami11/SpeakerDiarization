@@ -463,6 +463,8 @@ diart,tourch,tourchaudio,py
 
 you can find the reference paper amoung the files uploaded.
 
+https://github.com/juanmc2005/StreamingSpeakerDiarization
+
 https://github.com/manojpamk/pytorch_xvectors
 
 

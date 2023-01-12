@@ -477,6 +477,8 @@ this project done for DSP-Dr. Mahdi Eslami, first semester of 1401
 
 8.explaining video
 
+https://drive.google.com/file/d/12oC91EBVFZ_Yjm8yHAiYFKZ29bYHuCvN/view?usp=share_link
+
 https://drive.google.com/file/d/1WM5v1-DJ5ZNK8mc_X8YUzLWRRy-BhOkp/view?usp=share_link
 
 https://drive.google.com/file/d/1XxFsqxG7iVl2rFklANDbe6Ja9cClXrCe/view?usp=share_link
